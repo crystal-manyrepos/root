@@ -12,3 +12,6 @@ dependencies:
   one:
     github: crystal-manyrepos/one
     branch: master
+  two:
+    github: crystal-manyrepos/one
+    branch: master

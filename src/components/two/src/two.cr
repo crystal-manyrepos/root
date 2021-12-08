@@ -2,5 +2,7 @@
 module Two
   VERSION = "0.1.0"
 
-  # TODO: Put your code here
+  def self.some_method
+    "baz"
+  end
 end
