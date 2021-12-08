@@ -1,0 +1,9 @@
+name: two
+version: 0.1.0
+
+authors:
+  - George Dietrich <george.dietrich@jazzhr.com>
+
+crystal: 1.2.2
+
+license: MIT
