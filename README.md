@@ -1,46 +1,53 @@
 # Crystal ManyRepos
 
-Example org to demonstrate creating a monorepo with multiple shards that are synced to dedicated read-only repos using [git subtrees](https://www.atlassian.com/git/tutorials/git-subtree) via [splitsh](https://github.com/splitsh/lite).
+Example org to demonstrate creating a monorepo with multiple shards that are synced to dedicated read-only repos using [git subtrees](https://www.atlassian.com/git/tutorials/git-subtree).
 
 ## Introduction
 
-Combines the ease of development of a monorepo with the flexability of many repos. This setup can be used to develop a Crystal project, while still adhering to Shard "1 shard per repo" requirement.
-This repo represents the "root" shard of a project that requires each of the bundled dependencies within its `shard.yml`.
-It sets up some entry point files that will require the default components when the root shard is required. E.g. `require "root"`.
-There is also an entry point file for each component to allow only requiring specific sub-components. E.g. `require "root/one"`.
-Sub-components that are not required by default can be installed/required manually as needed.
+Git subtrees allow nesting one or more repositories inside of another within a sub-directory. Changes could then be synced to read-only child repositories. This allows development of a Crystal project to reap the benefits of a monorepo, while still adhering to Shard's "1 shard per repo" requirement. This repo represents a mono-repo of a mock project to demonstrate the process/how it looks.
 
-> **NOTE:** Installing the root shard also copies the `src/` directory which essentially duplicates the code. That code is never required directly, so will be excluded from the binary.
+However, there are some things worth pointing out based on my experiences playing around with this. Definitely open to suggestions/PRs:
 
-All development for the project can take place in this one repo, and changes could be synced to a read-only repo for each sub-component.
+1. Individual commits from `subtree add` lose association with the prefix
+   1. E.g. https://github.com/crystal-manyrepos/root/commits/master/src/components/one and notice how it does not include the `Add .sum method`, only the merge commit when it was added.
+2. `git subtree push` needs to traverse _EVERY_ commit, which could lead to performance issues as time goes on
+   1. Are ways that this can be improved, so can worry about it if/when there is a reproducible case of this issue
+3. Using the `--squash` with `subtree add` seems to break `subtree push`
+   1. Fails since the head of the child repo doesn't exactly exist in the repo. See https://github.com/crystal-manyrepos/root/runs/4496081430?check_suite_focus=true
+
+This repo _COULD_ be used as the main shard for the project by defining a `shard.yml`, that adds the required components as dependencies, then creating like `src/root.cr` that requires `"./one"` where that file does `require "one"`. This way both single components can be required as well as all of them.
+
+> **NOTE:** Using this shard results in the source code being duplicated, once from the required child shards, and once from `src/`.  However, since the code from `src/` is never directly required, it won't be included in the binary.
+
+In regards to versioning, one option is to version everything together by syncing tags down to child repos. Another option would be to version each component on its own within the child repos themselves. 
 
 ## Usage
-
-* Do development in this repo
-  * A [shard.dev.yml](shard.dev.yml) file can be used to install all child shards as symlinks to their [src/components/](src/components/) directory. The entire project could then be required via `require "./src/root"` via a `./test.cr` file for example.
-    * `$ SHARDS_OVERRIDE=shard.dev.yml shards update`
-* Make a PR with changes into main root
-  * For example: https://github.com/crystal-manyrepos/root/pull/3
-* Merge PR
-* Sync change to remotes
-  * `$ ./scripts/sync.sh`
-* See commits have been synced:
-  * https://github.com/crystal-manyrepos/one/commit/e981d57d0af55211e2f4c5523ea6604107e8ae75
-  * https://github.com/crystal-manyrepos/two/commit/b4c9c2653c8705890e19bb7c6f5ef7d7676900d2
 
 ### Adding a new component
 
 * Subtree in the repo into a related component directory, keeping past history:
-  * $ `git subtree add --prefix src/components/<component-name> git@github.com:crystal-manyrepos/<repo-name>.git <branch>`
-    * The `--squash` option may be used if you'd rather squash past history into one commit + merge commit.
+  * `git subtree add --prefix src/components/<component-name> git@github.com:crystal-manyrepos/<repo-name>.git <branch>`
+    * Be sure _not_ to use the `--squash` flag as that messes things up
 * Update [scripts/sync.sh](scripts/sync.sh) to include handle the new repo
-* (Optional) Add new repo to `shard.yml` as a dependency if it should be included by default
-  * Also add a new entry point file within `src/` and add it to [src/root.cr](src/root.cr).
+* Add new repo to `shard.dev.yml` as a dependency to make integration testing easier [src/root.cr](src/root.cr).
+
+### New development
+
+* Do development in this repo
+  * (optional) A  [shard.dev.yml](shard.dev.yml) can be used for testing purposes by installing all child components as symlinks to their [src/components/](src/components/) directory.
+    * `SHARDS_OVERRIDE=shard.dev.yml shards update`
+* Push up/merge a PR with changes into the `master` branch
+  * For example: https://github.com/crystal-manyrepos/root/commit/900cb15f7f43a9962298e97185b324a0151bdc79
+* Sync change to remotes
+  * `./scripts/sync.sh`
+* See commits have been synced:
+  * https://github.com/crystal-manyrepos/one/commit/08f64d2e4476da1c1772ba88df00ba9fc190b1c0
+  * https://github.com/crystal-manyrepos/two/commit/88ce77827ecd614fcca6e2bbb6983999daab2367
 
 ### Automated Sync
 
-The [sync.sh](scripts/sync.sh) script would ideally be invoked as part of a CD flow. I.e. once a PR's checks pass, is approved, and merged into master, the sync script would run to push the changes to each child repos in near real time. While there are other options, this can most easily be accomplished via defining a GitHub Action on the `push` event scoped to the `master` branch. An example of how this would look is [.github/workflows/sync.yml](.github/workflows/sync.yml) where `SYNC_TOKEN` is a [Personal Access Token (PAT)](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) with the `repo` permissions added as an [Encrypted Secret](https://docs.github.com/en/actions/security-guides/encrypted-secrets).
+The [sync.sh](scripts/sync.sh) script would ideally be invoked as part of a CD flow. I.e. once a PR's checks pass, is approved, and merged into `master`, the sync script would run to push the changes to each child repos in near real time. While there are other options, this can most easily be accomplished via defining a GitHub Action on the `push` event scoped to the `master` branch. An example of how this would look is [.github/workflows/sync.yml](.github/workflows/sync.yml) where `SYNC_TOKEN` is a [Personal Access Token (PAT)](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) with the `repo` permissions added as an [Encrypted Secret](https://docs.github.com/en/actions/security-guides/encrypted-secrets).
 
 > **NOTE:** Since a PAT cannot be scoped to certain repos, it is suggested to create a dedicated [Machine User](https://docs.github.com/en/developers/overview/managing-deploy-keys#machine-users) that _only_ has access to the child repos, and no personal repos, to handle the syncing.
 
-An example run using this workflow would look like [this](https://github.com/crystal-manyrepos/root/runs/4479189998?check_suite_focus=true); where it syncs https://github.com/crystal-manyrepos/root/commit/1d2e9265609fa5ad945a5e8138f54409fe36585b to https://github.com/crystal-manyrepos/one/commit/a7a63d3192a51e9876e1b18c97ee461323a41fac.
+An example run using this workflow for the previous `900cb` commit to `root` would look like: https://github.com/crystal-manyrepos/root/runs/4496182825?check_suite_focus=true.
