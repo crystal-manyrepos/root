@@ -13,4 +13,5 @@ function sync()
 
 git pull origin $CURRENT_BRANCH
 
-# sync one
+sync one
+sync two
