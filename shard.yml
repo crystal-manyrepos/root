@@ -1,0 +1,9 @@
+name: three
+version: 0.1.0
+
+authors:
+  - George Dietrich <george@dietrich.app>
+
+crystal: 1.2.2
+
+license: MIT
