@@ -23,9 +23,9 @@ In regards to versioning, one option is to version everything together by syncin
 
 ### Adding a new component
 
-* Subtree in the repo into a related component directory, keeping past history:
-  * `git subtree add --squash --prefix src/components/<component-name> git@github.com:crystal-manyrepos/<repo-name>.git <branch>`
-    * The `--squash` option can be used to add the child repo's history as one commit, versus essentially duplicating it into the `root` repo. Due to the first gotcha, squashing the history makes the most sense as you would need to use the child repo anyway to look at the full history of files/directories. In this repo `three` was squashed while `one` and `two` were not.
+* Subtree in the repo into a related component directory, keeping past history: `git subtree add --squash --prefix src/components/<component-name> git@github.com:crystal-manyrepos/<repo-name>.git <branch>`
+  * The `--squash` option can be used to add the child repo's history as one commit, versus essentially duplicating it into the `root` repo. Due to the first gotcha, squashing the history makes the most sense as you would need to use the child repo anyway to look at the full history of files/directories. In this repo `three` was squashed while `one` and `two` were not.
+  * **NOTE:** If using a dev branch and creating a PR into `master`, be sure to _NOT_ squash merge the PR, especially when adding more than one child repo, as this will break the special text that goes into the commit message that `git subtree` uses. Create a merge commit or rebase merge to ensure the commits added by `git subtree add` are not altered.
 * Update [scripts/sync.sh](scripts/sync.sh) to include handle the new repo
 * Add new repo to `shard.dev.yml` as a dependency
 * (optional) Add it to `shard.yml` and/or `src/root.cr` as well as making an entry point file within `src/` if this repo is a shard itself
