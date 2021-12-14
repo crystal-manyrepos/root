@@ -12,8 +12,6 @@ There are some things worth pointing out based on my experiences playing around 
    1. E.g. https://github.com/crystal-manyrepos/root/commits/master/src/components/one and notice how it does not include the `Add .sum method` commit, only the merge commit when it was added.
 2. `git subtree push` needs to traverse _EVERY_ commit, which could lead to performance issues as time goes on.
    1. Are ways that this can be improved, so can worry about it if/when there is a reproducible case of this issue (thousands of commits).
-3. Using the `--squash` option with `subtree add` seems to break `subtree push`.
-   1. Fails since the head of the child repo doesn't exactly exist in the repo. See https://github.com/crystal-manyrepos/root/runs/4496081430?check_suite_focus=true.
 
 This repo _COULD_ be used as the main shard for the project by defining a `shard.yml` that adds the required components as dependencies, then creating a `src/root.cr` file that requires `"./one"` where that file does `require "one"`. This way both single components can be required as well as all of them.
 
@@ -26,8 +24,8 @@ In regards to versioning, one option is to version everything together by syncin
 ### Adding a new component
 
 * Subtree in the repo into a related component directory, keeping past history:
-  * `git subtree add --prefix src/components/<component-name> git@github.com:crystal-manyrepos/<repo-name>.git <branch>`
-    * Be sure _not_ to use the `--squash` flag as that messes things up
+  * `git subtree add --squash --prefix src/components/<component-name> git@github.com:crystal-manyrepos/<repo-name>.git <branch>`
+    * The `--squash` option can be used to add the child repo's history as one commit, versus essentially duplicating it into the `root` repo. Due to the first gotcha, squashing the history makes the most sense as you would need to use the child repo anyway to look at the full history of files/directories. In this repo `three` was squashed while `one` and `two` were not.
 * Update [scripts/sync.sh](scripts/sync.sh) to include handle the new repo
 * Add new repo to `shard.dev.yml` as a dependency
 * (optional) Add it to `shard.yml` and/or `src/root.cr` as well as making an entry point file within `src/` if this repo is a shard itself

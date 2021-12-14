@@ -5,3 +5,5 @@ dependencies:
     path: src/components/one
   two:
     path: src/components/two
+  three:
+    path: src/components/two
