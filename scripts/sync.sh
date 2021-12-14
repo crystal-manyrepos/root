@@ -6,12 +6,21 @@ set -x
 
 CURRENT_BRANCH="master"
 
-function sync()
+function remote()
 {
-    git subtree push --prefix="src/components/$1" "https://github.com/crystal-manyrepos/$1.git" $CURRENT_BRANCH
+    git remote add $1 $2 || true
+    git fetch $1
+}
+
+function split()
+{
+    git subtree push --prefix="$1" $2 $CURRENT_BRANCH
 }
 
 git pull origin $CURRENT_BRANCH
 
-sync one
-sync two
+remote one https://github.com/crystal-manyrepos/one.git
+remote two https://github.com/crystal-manyrepos/two.git
+
+split 'src/components/one' one
+split 'src/components/two' two
