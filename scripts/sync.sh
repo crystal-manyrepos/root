@@ -12,7 +12,7 @@ CURRENT_BRANCH="master"
 # $3 - Git URL
 function maybeSync()
 {
-  if ! $(git diff --quiet --exit-code $BEFORE_SHA HEAD -- $1); then
+  if ! $(git diff --quiet --exit-code $BEFORE_SHA $AFTER_SHA -- $1); then
     echo "::group::Syncing $1"
     git remote add $2 $3 || true
     git fetch $2

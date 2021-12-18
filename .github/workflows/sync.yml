@@ -17,3 +17,4 @@ jobs:
         run: ./scripts/sync.sh
         env:
           BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.event.after }}
