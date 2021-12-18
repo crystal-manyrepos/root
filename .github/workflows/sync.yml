@@ -15,3 +15,5 @@ jobs:
           token: ${{ secrets.SYNC_TOKEN }}
       - name: Sync Repos
         run: ./scripts/sync.sh
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
