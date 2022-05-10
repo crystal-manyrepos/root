@@ -1,6 +1,6 @@
 # TODO: Write documentation for `One`
 module One
-  VERSION = "0.4.1"
+  VERSION = "0.4.2"
 
   def self.sum
     5 + 10
