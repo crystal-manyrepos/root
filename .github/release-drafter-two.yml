@@ -1,6 +1,8 @@
+include-paths:
+  - 'src/components/two'
 category-template: '### $CATEGORY'
 change-template: '- $TITLE from @$AUTHOR'
 template: |
-  ## [$RESOLVED_VERSION] - $DATE_TEMPLATE
+  ## [??.??.??] - $ISO_DATE
 
   $CHANGES
