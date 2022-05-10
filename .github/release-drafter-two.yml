@@ -2,6 +2,8 @@ include-paths:
   - 'src/components/two'
 category-template: '### $CATEGORY'
 tag-prefix: two
+filter-by-commitish: true
+commitish: master
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 template: |
   ## [??.??.??] - $ISO_DATE

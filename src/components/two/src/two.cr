@@ -13,4 +13,8 @@ module Two
   def self.min
     10
   end
+
+  def self.min
+    10
+  end
 end
