@@ -1,0 +1,6 @@
+category-template: '### $CATEGORY'
+change-template: '- $TITLE from @$AUTHOR'
+template: |
+  ## [$RESOLVED_VERSION] - $DATE_TEMPLATE
+
+  $CHANGES
