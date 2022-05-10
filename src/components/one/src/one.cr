@@ -5,4 +5,8 @@ module One
   def self.sum
     5 + 10
   end
+
+  def self.min
+    10
+  end
 end
