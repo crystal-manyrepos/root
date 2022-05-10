@@ -1,7 +1,8 @@
 include-paths:
   - 'src/components/one'
 category-template: '### $CATEGORY'
-change-template: '- $TITLE from @$AUTHOR'
+tag-prefix: one
+change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 template: |
   ## [??.??.??] - $ISO_DATE
 
