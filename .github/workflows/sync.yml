@@ -25,7 +25,6 @@ jobs:
         with:
           config-name: release-drafter-one.yml
           name: one
-          tag: vone
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   release_draft_two:
@@ -35,6 +34,5 @@ jobs:
         with:
           config-name: release-drafter-two.yml
           name: two
-          tag: vtwo
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
