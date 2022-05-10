@@ -5,4 +5,8 @@ module Two
   def self.summary
     "Two - #{VERSION}"
   end
+
+  def self.description
+    "Test description"
+  end
 end
