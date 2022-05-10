@@ -7,7 +7,7 @@ module Two
   end
 
   def self.description
-    "Test description"
+    "Test description2"
   end
 
   def self.min
