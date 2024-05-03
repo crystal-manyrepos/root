@@ -13,6 +13,11 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.SYNC_TOKEN }}
+    - name: Update Merge Commit Message
+      shell: bash
+      run: |
+        git commit --allow-empty --amend -m "${{ github.event.pull_request.title }} (crystal-manyrepos/root#${{ github.event.pull_request.number }})"
+        git push --force-with-lease
       - name: Sync Repos
         run: ./scripts/sync.sh
         env:

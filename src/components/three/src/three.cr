@@ -3,6 +3,6 @@ module Three
   VERSION = "0.5.0"
 
   def self.foo
-    "fooo"
+    "foo"
   end
 end
