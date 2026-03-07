@@ -27,6 +27,7 @@ jobs:
           git config user.email "${{ vars.BOT_USER_EMAIL }}"
 
           for shardDir in $(find src/ -maxdepth 3 -type f -name shard.yml | xargs -I{} dirname {} | sort); do
+            REPO_NAME=$(basename "$shardDir")
             REPO_URL="git@github.com:crystal-manyrepos/$REPO_NAME.git"
 
             if ! $(git diff --quiet --exit-code $BEFORE_SHA $AFTER_SHA -- "$shardDir"); then
