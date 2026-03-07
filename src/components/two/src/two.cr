@@ -3,6 +3,6 @@ module Two
   VERSION = "0.2.0"
 
   def self.summary
-    "Two | #{VERSION}"
+    "Two - #{VERSION}"
   end
 end
