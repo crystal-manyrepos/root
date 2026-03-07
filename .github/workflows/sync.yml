@@ -9,12 +9,30 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          fetch-depth: 0
-          token: ${{ secrets.SYNC_TOKEN }}
-      - name: Sync Repos
-        run: ./scripts/sync.sh
+          fetch-depth: 0 # Required so `git subtree` can find its split commit
+          ssh-key: ${{ secrets.BOT_SSH_PRIV_KEY }}
+
+      - name: Sync Shards
         env:
           BEFORE_SHA: ${{ github.event.before }}
           AFTER_SHA: ${{ github.event.after }}
+        run: |
+          set -euo pipefail
+
+          git config gpg.format ssh
+          git config user.signingkey "${{ vars.BOT_USER_SIGNING_KEY }}"
+          git config user.name "${{ vars.BOT_USER_NAME }}"
+          git config user.email "${{ vars.BOT_USER_EMAIL }}"
+
+          for shardDir in $(find src/ -maxdepth 3 -type f -name shard.yml | xargs -I{} dirname {} | sort); do
+            REPO_URL="git@github.com:crystal-manyrepos/$REPO_NAME.git"
+
+            if ! $(git diff --quiet --exit-code $BEFORE_SHA $AFTER_SHA -- "$shardDir"); then
+              echo "Syncing: $REPO_NAME"
+              git remote add "$REPO_NAME" "$REPO_URL" &> /dev/null || true
+              git fetch --quiet "$REPO_NAME"
+              git subtree push --prefix="$shardDir" "$REPO_NAME" "master"
+            fi
+          done
