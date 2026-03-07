@@ -34,6 +34,6 @@ jobs:
               echo "Syncing: $REPO_NAME"
               git remote add "$REPO_NAME" "$REPO_URL" &> /dev/null || true
               git fetch --quiet "$REPO_NAME"
-              git subtree push --prefix="$shardDir" "$REPO_NAME" "master"
+              git subtree push -S --prefix="$shardDir" "$REPO_NAME" "master"
             fi
           done
